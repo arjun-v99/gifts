@@ -33,6 +33,25 @@ class AuthController extends Controller
             ]);
         } catch (Exception $e) {
             Log::error('Error while loading login view. Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Something went wrong'], 500);
+        }
+    }
+
+    public function logoutUser(Request $request)
+    {
+        try {
+            $user = Auth::guard('sanctum')->user();
+
+            if ($user) {
+                $user->currentAccessToken()->delete();
+            }
+
+            return response()->json([
+                'message' => 'Logout successful',
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error while trying log out user: ' . $e->getMessage());
+            return response()->json(['error' => 'Something went wrong'], 500);
         }
     }
 }
