@@ -12,6 +12,6 @@ Route::get('/user', function (Request $request) {
 Route::post('/login', [AuthController::class, 'authenticateLogin']);
 
 Route::group(['prefix' => 'gifts'], function () {
-    // Create a get method here to get all gifts of a user
+    Route::get('/', [GiftController::class, 'fetchGifts']);
     Route::post('/create', [GiftController::class, 'createGift']);
 })->middleware('auth:sanctum');

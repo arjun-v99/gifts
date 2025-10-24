@@ -85,4 +85,25 @@ class GiftController extends Controller
             return response()->json(['error' => 'Something went wrong'], 500);
         }
     }
+
+    public function fetchGifts(Request $request)
+    {
+        try {
+            /** @var \App\Models\User|null $user */
+            $user = Auth::user();
+            if (! $user || ! ($user instanceof User)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            $sentGifts = Gift::where('sender_id', $user->id)->get();
+            $receivedGifts = Gift::where('receiver_id', $user->id)->get();
+            return response()->json([
+                'status' => 'success',
+                'sent_gifts' => $sentGifts,
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error while loading login view. Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Something went wrong'], 500);
+        }
+    }
 }
