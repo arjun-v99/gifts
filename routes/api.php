@@ -18,4 +18,5 @@ Route::group(['prefix' => 'auth'], function () {
 Route::group(['prefix' => 'gifts'], function () {
     Route::get('/', [GiftController::class, 'fetchGifts']);
     Route::post('/', [GiftController::class, 'createGift']);
+    Route::get('/{giftId}', [GiftController::class, 'viewGift']);
 })->middleware('auth:sanctum');

@@ -56,6 +56,7 @@ class GiftController extends Controller
                     'sender_id' => $user->id,
                     'receiver_id' => $findReceiverUser->id,
                     'item_name' => $itemName,
+                    'file_path' => $result['path'],
                     'cost' => $cost,
                 ]);
 
@@ -92,6 +93,37 @@ class GiftController extends Controller
                 'sent_gifts' => $sentGifts,
                 'received_gifts' => $receivedGifts
             ], 200);
+        } catch (Exception $e) {
+            Log::error('Error while loading login view. Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Something went wrong'], 500);
+        }
+    }
+
+    public function viewGift(Request $request)
+    {
+        try {
+            $giftId = $request->route('giftId');
+            $user = Auth::guard('sanctum')->user();
+
+            // Find the gift by ID
+            $gift = Gift::find($giftId);
+
+            // If not found
+            if (! $gift) {
+                return response()->json([
+                    'message' => 'Gift not found',
+                ], 404);
+            }
+
+            // Check ownership
+            if ($gift->receiver_id !== $user->id) {
+                return response()->json([
+                    'message' => 'Unauthorized access',
+                ], 403);
+            }
+
+            // return response()->json($gift);
+            return Storage::disk('private')->download($gift->file_path);
         } catch (Exception $e) {
             Log::error('Error while loading login view. Error: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong'], 500);

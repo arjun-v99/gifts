@@ -48,7 +48,7 @@ class ImageGeneratorService
             // 5. Prepare to Save the File
             $filename = Str::uuid() . '.png';
             $path = $folder . '/' . $filename;
-            $disk = 'public';
+            $disk = 'private';
 
             // 6. Encode and Store the image
             $encodedImage = $image->encode(new PngEncoder());
