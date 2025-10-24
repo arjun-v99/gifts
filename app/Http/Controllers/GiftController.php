@@ -24,6 +24,10 @@ class GiftController extends Controller
     public function createGift(Request $request)
     {
         try {
+            $request->validate([
+                'receiver' => 'required|email|max:255'
+            ]);
+
             $user = Auth::guard('sanctum')->user();
             $senderCoinBalance = $user->coin_balance;
 
