@@ -10,7 +10,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Services\ImageGeneratorService;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
 
 class GiftController extends Controller
 {
@@ -25,29 +24,27 @@ class GiftController extends Controller
     public function createGift(Request $request)
     {
         try {
-            /** @var \App\Models\User|null $user */
-            $user = Auth::user();
-            if (! $user || ! ($user instanceof User)) {
-                return response()->json(['error' => 'Unauthorized'], 401);
-            }
+            $request->validate([
+                'receiver' => 'required|email|max:255'
+            ]);
 
+            $user = Auth::guard('sanctum')->user();
             $senderCoinBalance = $user->coin_balance;
-
-            $receiverId = $request->input('receiver_id');
-            $receiver = User::findOrFail($receiverId);
-            // $user = User::where('email', $request->gifteduser)->first();
-            // if (! $user) {
-            //     return response()->json(['error' => 'The user you want to gift to was not found'], 404);
-            // }
-
 
             // Assuming gift creation takes 5 coins
             if ($senderCoinBalance < 5) {
-
                 return response()->json(['error' => "You don't have enough credits to do this"], 400);
             }
 
-            $result = $this->imageGeneratorService->createSticker("A Gift for you", 250, 80);
+            $receiver = $request->input('receiver');
+
+            $findReceiverUser = User::where('email', $receiver)->first();
+
+            if ($findReceiverUser === null) {
+                return response()->json(['error' => 'The receiver for the gift is not found'], 404);
+            }
+
+            $result = $this->imageGeneratorService->createSticker("A Gift for you", 200, 100);
 
             $itemName = "My Sticker";
             $cost = 5;
@@ -60,8 +57,9 @@ class GiftController extends Controller
                 // Create gift entry for receiver
                 Gift::create([
                     'sender_id' => $user->id,
-                    'receiver_id' => $receiver->id,
+                    'receiver_id' => $findReceiverUser->id,
                     'item_name' => $itemName,
+                    'file_path' => $result['path'],
                     'cost' => $cost,
                 ]);
 
@@ -81,7 +79,7 @@ class GiftController extends Controller
                 'file_path' => null,
             ], 500);
         } catch (Exception $e) {
-            Log::error('Error while loading login view. Error: ' . $e->getMessage());
+            Log::error('Error while creating a gift. Error: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong'], 500);
         }
     }
@@ -89,20 +87,47 @@ class GiftController extends Controller
     public function fetchGifts(Request $request)
     {
         try {
-            /** @var \App\Models\User|null $user */
-            $user = Auth::user();
-            if (! $user || ! ($user instanceof User)) {
-                return response()->json(['error' => 'Unauthorized'], 401);
-            }
+            $user = Auth::guard('sanctum')->user();
 
             $sentGifts = Gift::where('sender_id', $user->id)->get();
             $receivedGifts = Gift::where('receiver_id', $user->id)->get();
             return response()->json([
                 'status' => 'success',
                 'sent_gifts' => $sentGifts,
+                'received_gifts' => $receivedGifts
             ], 200);
         } catch (Exception $e) {
-            Log::error('Error while loading login view. Error: ' . $e->getMessage());
+            Log::error('Error while loading your gifts. Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Something went wrong'], 500);
+        }
+    }
+
+    public function viewGift(Request $request)
+    {
+        try {
+            $giftId = $request->route('giftId');
+            $user = Auth::guard('sanctum')->user();
+
+            // Find the gift by ID
+            $gift = Gift::find($giftId);
+
+            // If not found
+            if (! $gift) {
+                return response()->json([
+                    'message' => 'Gift not found',
+                ], 404);
+            }
+
+            // Check ownership
+            if ($gift->receiver_id !== $user->id) {
+                return response()->json([
+                    'message' => 'Unauthorized access',
+                ], 403);
+            }
+
+            return Storage::disk('private')->download($gift->file_path);
+        } catch (Exception $e) {
+            Log::error('Error while downloading your gift sticker. Error: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong'], 500);
         }
     }

@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->decimal('coin_balance', 15, 2)->default(0);
+        Schema::table('gifts', function (Blueprint $table) {
+            $table->string('file_path', 255)->after('item_name');
         });
     }
 
@@ -21,6 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropColumns('users', 'coin_balance');
+        Schema::dropColumns('gifts', 'file_path');
     }
 };

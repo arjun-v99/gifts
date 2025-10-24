@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Gift extends Model
 {
-    protected $fillable = ['sender_id', 'receiver_id', 'item_name', 'cost'];
+    protected $fillable = ['sender_id', 'receiver_id', 'item_name', 'cost', 'file_path'];
 
     public function sender()
     {
