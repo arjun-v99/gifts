@@ -21,6 +21,7 @@ class GiftController extends Controller
     {
         $this->imageGeneratorService = $imageGeneratorService;
     }
+
     public function createGift(Request $request)
     {
         try {
@@ -52,6 +53,8 @@ class GiftController extends Controller
             $cost = 5;
             //  Check the status and respond accordingly
             if ($result['status']) {
+                // update users balance
+
                 $user->coin_balance -= 5;
                 $user->save();
                 // Create gift entry for receiver
