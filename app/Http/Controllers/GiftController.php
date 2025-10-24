@@ -10,7 +10,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Services\ImageGeneratorService;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
 
 class GiftController extends Controller
 {
@@ -122,7 +121,6 @@ class GiftController extends Controller
                 ], 403);
             }
 
-            // return response()->json($gift);
             return Storage::disk('private')->download($gift->file_path);
         } catch (Exception $e) {
             Log::error('Error while loading login view. Error: ' . $e->getMessage());
