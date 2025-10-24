@@ -40,7 +40,7 @@ class GiftController extends Controller
                 return response()->json(['error' => 'The receiver for the gift is not found'], 404);
             }
 
-            $result = $this->imageGeneratorService->createSticker("A Gift for you", 250, 80);
+            $result = $this->imageGeneratorService->createSticker("A Gift for you", 200, 100);
 
             $itemName = "My Sticker";
             $cost = 5;
