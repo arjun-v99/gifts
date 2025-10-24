@@ -79,7 +79,7 @@ class GiftController extends Controller
                 'file_path' => null,
             ], 500);
         } catch (Exception $e) {
-            Log::error('Error while loading login view. Error: ' . $e->getMessage());
+            Log::error('Error while creating a gift. Error: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong'], 500);
         }
     }
@@ -97,7 +97,7 @@ class GiftController extends Controller
                 'received_gifts' => $receivedGifts
             ], 200);
         } catch (Exception $e) {
-            Log::error('Error while loading login view. Error: ' . $e->getMessage());
+            Log::error('Error while loading your gifts. Error: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong'], 500);
         }
     }
@@ -127,7 +127,7 @@ class GiftController extends Controller
 
             return Storage::disk('private')->download($gift->file_path);
         } catch (Exception $e) {
-            Log::error('Error while loading login view. Error: ' . $e->getMessage());
+            Log::error('Error while downloading your gift sticker. Error: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong'], 500);
         }
     }

@@ -32,7 +32,7 @@ class AuthController extends Controller
                 'user' => $user,
             ]);
         } catch (Exception $e) {
-            Log::error('Error while loading login view. Error: ' . $e->getMessage());
+            Log::error('Unable to login user. Error: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong'], 500);
         }
     }
